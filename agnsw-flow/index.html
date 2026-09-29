@@ -1,0 +1,730 @@
+<title>AGNSW 관람 동선</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700;800&family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 건축 단면도 한 장을 중심에 두고, 오른쪽 해설 패널 + 아래 정거장 스트립(조도 리듬)으로 읽는 구성 */
+:root {
+  --bg: #eef0ee;
+  --surface: #fbfcfb;
+  --ink: #1b2226;
+  --muted: #5b666b;
+  --line: #c6cdcf;
+  --earth: #dcd8cf;
+  --earth-line: #c7c1b4;
+  --water: #cfe0ea;
+  --stone: #b3864a;        /* Naala Nura 사암 */
+  --stone-tint: #efe3d0;
+  --lime: #e9ecea;         /* Naala Badu 석회석·유리 */
+  --lime-edge: #9aa6ab;
+  --harbour: #1d5d88;      /* 동선·강조 */
+  --harbour-soft: #d6e5ef;
+  --l-day: #f1d56b;
+  --l-sky: #e6c79a;
+  --l-diffuse: #d9ecef;
+  --l-led: #a9bccb;
+  --l-low: #7f8ea0;
+  --l-dark: #2c3140;
+  --l-out: #b5d6a8;
+  --on-dark: #f3f5f6;
+  --font-display: "Nanum Myeongjo", "Noto Serif KR", "Apple SD Gothic Neo", serif;
+  --font-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101416; --surface: #171d20; --ink: #e5eaec; --muted: #98a3a8; --line: #2d363a;
+    --earth: #1f2224; --earth-line: #34383a; --water: #16303f;
+    --stone: #d4a66a; --stone-tint: #3a3024; --lime: #262d31; --lime-edge: #6f7d83;
+    --harbour: #72b3e0; --harbour-soft: #1b3445;
+    --l-day: #b89a2e; --l-sky: #a3845a; --l-diffuse: #4e6d73; --l-led: #4f6576; --l-low: #3a4656; --l-dark: #07090d; --l-out: #4d6b44;
+    --on-dark: #f3f5f6;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101416; --surface: #171d20; --ink: #e5eaec; --muted: #98a3a8; --line: #2d363a;
+  --earth: #1f2224; --earth-line: #34383a; --water: #16303f;
+  --stone: #d4a66a; --stone-tint: #3a3024; --lime: #262d31; --lime-edge: #6f7d83;
+  --harbour: #72b3e0; --harbour-soft: #1b3445;
+  --l-day: #b89a2e; --l-sky: #a3845a; --l-diffuse: #4e6d73; --l-led: #4f6576; --l-low: #3a4656; --l-dark: #07090d; --l-out: #4d6b44;
+  --on-dark: #f3f5f6;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.6; }
+.wrap { max-width: 1320px; margin: 0 auto; padding-inline: clamp(16px, 3vw, 36px); padding-block: 28px 56px; }
+
+header.top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px 32px; align-items: end; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+.eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(28px, 4vw, 44px); line-height: 1.15; margin: 6px 0 8px; text-wrap: balance; }
+.lede { margin: 0; max-width: 62ch; color: var(--muted); }
+.lede b { color: var(--ink); font-weight: 600; }
+
+.controls { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: center; justify-content: flex-end; }
+.group { display: flex; flex-direction: column; gap: 6px; }
+.group > span { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; background: var(--surface); gap: 2px; }
+.seg button, .chip { font: inherit; font-size: 13.5px; border: 0; background: transparent; color: var(--ink); padding: 6px 13px; border-radius: 999px; cursor: pointer; white-space: nowrap; }
+.seg button[aria-pressed="true"] { background: var(--harbour); color: var(--surface); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid var(--line); background: var(--surface); display: inline-flex; gap: 7px; align-items: center; }
+.chip::before { content: ""; width: 10px; height: 10px; border-radius: 3px; border: 1.5px solid var(--muted); }
+.chip[aria-pressed="true"] { border-color: var(--harbour); }
+.chip[aria-pressed="true"]::before { background: var(--harbour); border-color: var(--harbour); }
+button:focus-visible, textarea:focus-visible { outline: 2px solid var(--harbour); outline-offset: 2px; }
+
+main.stage { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 22px; margin-top: 22px; align-items: start; }
+@media (max-width: 1060px) { main.stage { grid-template-columns: minmax(0, 1fr); } header.top { grid-template-columns: minmax(0,1fr); } .controls { justify-content: flex-start; } }
+
+.plate { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; min-width: 0; }
+.plate-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; align-items: baseline; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.plate-head h2 { font-family: var(--font-display); font-size: 18px; margin: 0; }
+.plate-head .meta { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.svgbox { overflow-x: auto; }
+.svgbox svg { display: block; width: 100%; min-width: 820px; height: auto; }
+
+/* SVG */
+.earth { fill: var(--earth); stroke: var(--earth-line); }
+.hatch line { stroke: var(--earth-line); stroke-width: 1; }
+.water { fill: var(--water); }
+.wave { fill: none; stroke: var(--harbour); stroke-width: 1; opacity: .45; }
+.shell-nn { fill: none; stroke: var(--stone); stroke-width: 2; }
+.shell-nb { fill: none; stroke: var(--lime-edge); stroke-width: 1.5; }
+.roof-nb { stroke: var(--lime-edge); stroke-width: 3; }
+.tree { fill: var(--l-out); stroke: var(--muted); stroke-width: .6; }
+.lvl-label { font-family: var(--font-mono); font-size: 13px; fill: var(--muted); }
+.lvl-rule { stroke: var(--line); stroke-dasharray: 2 5; }
+.bld-label { font-family: var(--font-display); font-size: 22px; font-weight: 800; fill: var(--ink); }
+.bld-sub { font-family: var(--font-mono); font-size: 12.5px; fill: var(--muted); }
+.room rect, .room path { stroke-width: 1.2; cursor: pointer; transition: fill .35s ease, stroke .2s; }
+.room.nn rect, .room.nn path { fill: var(--stone-tint); stroke: var(--stone); }
+.room.nb rect, .room.nb path { fill: var(--lime); stroke: var(--lime-edge); }
+.room.out rect { fill: transparent; stroke: var(--muted); stroke-dasharray: 4 3; }
+.room text { font-size: 14px; fill: var(--ink); pointer-events: none; font-family: var(--font-body); font-weight: 500; }
+.room text.dim { fill: var(--muted); font-weight: 400; font-size: 10.5px; }
+.room:hover rect, .room:hover path, .room:focus-visible rect { stroke: var(--harbour); stroke-width: 2; }
+.room:focus { outline: none; }
+.room.active rect, .room.active path { stroke: var(--harbour); stroke-width: 3; }
+
+svg.show-light .room[data-l="day"] rect, svg.show-light .room[data-l="day"] path { fill: var(--l-day); }
+svg.show-light .room[data-l="sky"] rect { fill: var(--l-sky); }
+svg.show-light .room[data-l="diffuse"] rect, svg.show-light .room[data-l="diffuse"] path { fill: var(--l-diffuse); }
+svg.show-light .room[data-l="led"] rect { fill: var(--l-led); }
+svg.show-light .room[data-l="low"] rect { fill: var(--l-low); }
+svg.show-light .room[data-l="dark"] rect { fill: var(--l-dark); }
+svg.show-light .room[data-l="out"] rect { fill: var(--l-out); stroke-dasharray: 4 3; }
+svg.show-light .room[data-l="dark"] text, svg.show-light .room[data-l="low"] text { fill: var(--on-dark); }
+.tank-col { stroke: var(--muted); stroke-width: 1.5; opacity: .5; pointer-events: none; }
+svg.show-light .tank-col { stroke: var(--on-dark); opacity: .35; }
+.window-mark { stroke: var(--harbour); stroke-width: 4; }
+
+.route-halo { fill: none; stroke: var(--surface); stroke-width: 7; stroke-linejoin: round; stroke-linecap: round; opacity: .85; }
+.route-line { fill: none; stroke: var(--harbour); stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; stroke-dasharray: 7 6; }
+.route-done { fill: none; stroke: var(--harbour); stroke-width: 3.4; stroke-linejoin: round; stroke-linecap: round; }
+.walker { fill: var(--harbour); stroke: var(--surface); stroke-width: 3; }
+.stopnum circle { fill: var(--surface); stroke: var(--harbour); stroke-width: 1.5; }
+.stopnum text { font-family: var(--font-mono); font-size: 11.5px; font-weight: 500; fill: var(--harbour); text-anchor: middle; dominant-baseline: central; }
+.stopnum.cur circle { fill: var(--harbour); }
+.stopnum.cur text { fill: var(--surface); }
+.pin { fill: var(--surface); stroke: var(--ink); stroke-width: 1.2; pointer-events: none; }
+svg:not(.show-route) .route-layer { display: none; }
+svg:not(.show-works) .pin-layer { display: none; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 8px 18px; padding: 12px 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+.legend i { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: -2px; margin-right: 6px; border: 1px solid var(--line); }
+.legend[hidden] { display: none !important; }
+
+/* 재생 바 */
+.player { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; padding: 12px 16px; border-top: 1px solid var(--line); }
+.player button { font: inherit; font-size: 13.5px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 6px 14px; border-radius: 4px; cursor: pointer; }
+.player button.primary { background: var(--harbour); border-color: var(--harbour); color: var(--surface); min-width: 92px; }
+.player .hint { font-size: 12.5px; color: var(--muted); margin-left: auto; }
+.player .hint kbd { font-family: var(--font-mono); font-size: 11px; border: 1px solid var(--line); border-radius: 3px; padding: 0 5px; }
+
+/* 해설 패널 */
+aside.panel { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 14px); max-height: calc(100vh - 28px); overflow-y: auto; }
+@media (max-width: 1060px) { aside.panel { position: static; max-height: none; } }
+.panel-body { padding: 16px 18px 20px; display: grid; gap: 16px; }
+.p-kicker { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.tag { font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+.tag.nn { border-color: var(--stone); color: var(--stone); }
+.tag.nb { border-color: var(--lime-edge); color: var(--ink); }
+.tag.step { background: var(--harbour); border-color: var(--harbour); color: var(--surface); }
+.panel h3 { font-family: var(--font-display); font-size: 24px; line-height: 1.25; margin: 0; text-wrap: balance; }
+.panel .en { font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin-top: 2px; }
+.panel .sum { margin: 0; }
+.sec h4 { font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; font-weight: 500; }
+.sec p { margin: 0; }
+.works { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.works li { display: grid; grid-template-columns: 16px minmax(0,1fr); gap: 8px; font-size: 14px; line-height: 1.45; }
+.works li::before { content: ""; width: 9px; height: 9px; margin-top: 6px; transform: rotate(45deg); border: 1.2px solid var(--ink); background: var(--surface); }
+.works .who { color: var(--muted); font-size: 13px; }
+.lightbar { display: flex; gap: 10px; align-items: center; margin-bottom: 6px; }
+.lightbar .sw { width: 18px; height: 18px; border-radius: 4px; border: 1px solid var(--line); flex: none; }
+.lightbar strong { font-weight: 600; font-size: 14px; }
+.meter { display: inline-flex; gap: 3px; margin-left: auto; }
+.meter b { width: 8px; height: 14px; border-radius: 2px; background: var(--line); }
+.meter b.on { background: var(--harbour); }
+.point { background: var(--harbour-soft); border-radius: 4px; padding: 12px 14px; }
+.point h4 { color: var(--harbour); }
+.check { font-size: 13.5px; color: var(--muted); }
+.check ul { margin: 0; padding-left: 18px; }
+textarea { width: 100%; min-height: 84px; resize: vertical; font: inherit; font-size: 14px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 8px 10px; }
+.saved { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+
+/* 정거장 스트립 */
+section.strip { margin-top: 22px; }
+.strip-head { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
+.strip-head h2 { font-family: var(--font-display); font-size: 20px; margin: 0; }
+.strip-head p { margin: 0; font-size: 13px; color: var(--muted); }
+.stops { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(96px, 1fr); gap: 6px; overflow-x: auto; padding-bottom: 6px; }
+.stop { font: inherit; text-align: left; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 4px; padding: 8px 9px 9px; cursor: pointer; display: grid; grid-template-rows: 64px auto auto; gap: 6px; min-width: 0; }
+.stop .bar { align-self: end; border-radius: 2px 2px 0 0; width: 100%; }
+.stop .n { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.stop .t { font-size: 12.5px; line-height: 1.3; font-weight: 500; }
+.stop.cur { border-color: var(--harbour); box-shadow: inset 0 -3px 0 var(--harbour); }
+.stop.cur .n { color: var(--harbour); }
+
+/* 발표용 요약 */
+section.notes { margin-top: 34px; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 22px; }
+@media (max-width: 900px) { section.notes { grid-template-columns: minmax(0,1fr); } }
+.note h3 { font-family: var(--font-display); font-size: 19px; margin: 6px 0 8px; text-wrap: balance; }
+.note p { margin: 0; max-width: 60ch; }
+.note .eyebrow { color: var(--harbour); }
+
+section.ref { margin-top: 34px; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 22px; }
+@media (max-width: 900px) { section.ref { grid-template-columns: minmax(0,1fr); } }
+.ref h2 { font-family: var(--font-display); font-size: 20px; margin: 0 0 10px; }
+.tbl { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+td.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.fine { font-size: 12.5px; color: var(--muted); margin-top: 8px; }
+.src { font-size: 13.5px; }
+.src ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.src a { color: var(--harbour); }
+footer { margin-top: 36px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) { .room rect, .room path { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">Museography · Art Gallery of New South Wales · Sydney</div>
+      <h1>뉴사우스웨일스 미술관 관람 동선</h1>
+      <p class="lede">사암으로 지은 <b>Naala Nura</b>(1909년 그랜드 코트)에서 아트 가든을 건너 항구 쪽으로 계단처럼 내려가는 <b>Naala Badu</b>(SANAA, 2022)까지, 상설 소장품 공간의 동선·조명·작품 배치를 개념 단면도 한 장에 겹쳐 보여줍니다. 공간을 누르면 해설이 열립니다.</p>
+    </div>
+    <div class="controls">
+      <div class="group">
+        <span>동선 시나리오</span>
+        <div class="seg" role="group" aria-label="동선 시나리오">
+          <button type="button" id="routeA" aria-pressed="true">A · 역사 → 현대</button>
+          <button type="button" id="routeB" aria-pressed="false">B · 현대 → 역사</button>
+        </div>
+      </div>
+      <div class="group">
+        <span>레이어</span>
+        <div class="chips">
+          <button type="button" class="chip" id="lyRoute" aria-pressed="true">동선</button>
+          <button type="button" class="chip" id="lyLight" aria-pressed="false">조명</button>
+          <button type="button" class="chip" id="lyWorks" aria-pressed="true">작품 배치</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="stage">
+    <div class="plate">
+      <div class="plate-head">
+        <h2>캠퍼스 개념 단면도</h2>
+        <span class="meta" id="routeMeta">서 → 동 · 축척 없음 · 정거장 15곳</span>
+      </div>
+      <div class="svgbox">
+        <svg id="plan" class="show-route show-works" viewBox="0 0 1200 560" role="img" aria-label="Naala Nura와 Naala Badu의 층별 공간과 관람 동선을 나타낸 개념 단면도">
+          <defs>
+            <pattern id="hatchP" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+              <line x1="0" y1="0" x2="0" y2="10" stroke="var(--earth-line)" stroke-width="1"></line>
+            </pattern>
+          </defs>
+          <!-- 층 가이드 -->
+          <g>
+            <line class="lvl-rule" x1="0" y1="181" x2="1200" y2="181"></line>
+            <line class="lvl-rule" x1="0" y1="269" x2="1200" y2="269"></line>
+            <line class="lvl-rule" x1="0" y1="345" x2="1200" y2="345"></line>
+            <line class="lvl-rule" x1="0" y1="476" x2="1200" y2="476"></line>
+          </g>
+          <!-- 대지 -->
+          <path class="earth" d="M0,226 H960 V304 H1092 V392 H1200 V560 H0 Z"></path>
+          <path d="M0,226 H960 V304 H1092 V392 H1200 V560 H0 Z" fill="url(#hatchP)" opacity=".55"></path>
+          <rect class="water" x="1092" y="392" width="108" height="168"></rect>
+          <path class="wave" d="M1098,404 q9,-6 18,0 t18,0 t18,0 t18,0 t18,0 M1098,424 q9,-6 18,0 t18,0 t18,0 t18,0 t18,0 M1098,444 q9,-6 18,0 t18,0 t18,0 t18,0 t18,0"></path>
+          <text class="bld-sub" x="1104" y="480">울루물루 만</text>
+          <text class="bld-sub" x="1104" y="495">Woolloomooloo</text>
+
+          <!-- 층 라벨 -->
+          <text class="lvl-label" x="6" y="176">G</text>
+          <text class="lvl-label" x="6" y="264">LL1</text>
+          <text class="lvl-label" x="6" y="340">LL2</text>
+          <text class="lvl-label" x="6" y="410">LL3</text>
+          <text class="lvl-label" x="6" y="471">LL4</text>
+
+          <!-- Naala Nura 외피 -->
+          <text class="bld-label" x="30" y="62">Naala Nura</text>
+          <text class="bld-sub" x="30" y="84">'땅을 보는 곳' · 사암 · 1909~</text>
+          <path class="shell-nn" d="M32,226 V136 H386 V226"></path>
+          <polygon points="34,136 76,110 118,136" fill="none" stroke="var(--stone)" stroke-width="2"></polygon>
+          <g stroke="var(--stone)" stroke-width="2">
+            <line x1="46" y1="138" x2="46" y2="222"></line><line x1="62" y1="138" x2="62" y2="222"></line>
+            <line x1="90" y1="138" x2="90" y2="222"></line><line x1="106" y1="138" x2="106" y2="222"></line>
+          </g>
+          <path class="shell-nn" d="M112,136 q88,-26 176,0"></path>
+
+          <!-- 아트 가든 -->
+          <text class="bld-sub" x="492" y="150">아트 가든 · 랜드브리지</text>
+          <circle class="tree" cx="508" cy="208" r="10"></circle>
+          <circle class="tree" cx="606" cy="206" r="12"></circle>
+
+          <!-- Naala Badu 외피 -->
+          <text class="bld-label" x="724" y="62">Naala Badu</text>
+          <text class="bld-sub" x="724" y="84">'물을 보는 곳' · SANAA · 2022</text>
+          <line class="roof-nb" x1="716" y1="134" x2="968" y2="134"></line>
+          <line class="roof-nb" x1="732" y1="232" x2="966" y2="232"></line>
+          <line class="roof-nb" x1="752" y1="308" x2="1002" y2="308"></line>
+          <line class="roof-nb" x1="722" y1="424" x2="1038" y2="424"></line>
+          <line class="lvl-rule" x1="790" y1="380" x2="790" y2="424"></line>
+          <text class="bld-sub" x="798" y="408">계단·엘리베이터로 연결</text>
+
+          <g id="rooms"></g>
+          <g class="pin-layer" id="pins"></g>
+          <g class="route-layer" id="routeLayer">
+            <path class="route-halo" id="routeHalo"></path>
+            <path class="route-line" id="routeLine"></path>
+            <path class="route-done" id="routeDone"></path>
+            <g id="stopNums"></g>
+            <circle class="walker" id="walker" r="7"></circle>
+          </g>
+        </svg>
+      </div>
+      <div class="legend" id="legendLight" hidden>
+        <span><i style="background:var(--l-day)"></i>자연광 주도</span>
+        <span><i style="background:var(--l-sky)"></i>천창형 확산광</span>
+        <span><i style="background:var(--l-diffuse)"></i>반투명 유리 확산</span>
+        <span><i style="background:var(--l-led)"></i>갤러리 LED 제어</span>
+        <span><i style="background:var(--l-low)"></i>저조도 보존 조명</span>
+        <span><i style="background:var(--l-dark)"></i>암부 · 포인트 조명</span>
+        <span><i style="background:var(--l-out)"></i>야외</span>
+      </div>
+      <div class="player">
+        <button type="button" class="primary" id="play">▶ 재생</button>
+        <button type="button" id="prev">이전</button>
+        <button type="button" id="next">다음</button>
+        <span class="hint"><kbd>←</kbd> <kbd>→</kbd> 정거장 이동 · <kbd>Space</kbd> 재생</span>
+      </div>
+    </div>
+
+    <aside class="plate panel" aria-live="polite">
+      <div class="panel-body" id="panel"></div>
+    </aside>
+  </main>
+
+  <section class="strip" aria-label="정거장 목록">
+    <div class="strip-head">
+      <h2>동선을 따라 본 밝기의 리듬</h2>
+      <p>막대 높이 = 체감 밝기 5단계 (정성 평가, 실측 lux 아님) · 색 = 조명 유형</p>
+    </div>
+    <div class="stops" id="stops"></div>
+  </section>
+
+  <section class="notes">
+    <div class="note">
+      <div class="eyebrow">관찰 1 · 수직 동선</div>
+      <h3>시간을 거슬러 내려가는 게 아니라, 현재로 내려간다</h3>
+      <p>거리와 같은 높이의 Naala Nura 입구층에는 15~19세기 유럽 미술과 19세기 호주 미술이 있고, 한 층 내려가면 1960~2000년대가 나옵니다. Naala Badu는 항구 쪽으로 파빌리온이 계단식으로 내려가며, 가장 깊은 지하 LL4 탱크에서 가장 새로운 커미션 작품을 만납니다. 연대기와 지형이 같은 방향으로 흐르는 구조입니다.</p>
+    </div>
+    <div class="note">
+      <div class="eyebrow">관찰 2 · 빛의 연출</div>
+      <h3>천창, 등(燈), 유리, 그리고 어둠</h3>
+      <p>그랜드 코트는 곡면 천창 뒤 LED로 하늘빛 같은 확산광을 재현하고, 아시안 랜턴은 흰 유리 파빌리온 자체가 빛을 거릅니다. Naala Badu는 순환 공간에 자연광을 최대한 들이고 전시실은 LED로 통제합니다. 탱크는 자연광이 전혀 없는 전쟁기 저유조입니다. 밝기가 오르내리는 리듬이 곧 관람의 호흡을 만듭니다.</p>
+    </div>
+    <div class="note">
+      <div class="eyebrow">관찰 3 · 배치의 위계</div>
+      <h3>원주민 미술을 가장 낮은 곳에서 가장 앞으로</h3>
+      <p>Yiribana 갤러리는 옛 건물의 최하층에서 Naala Badu 입구 바로 옆으로 옮겨졌습니다. 새 건물에 들어선 관람객이 처음 만나는 전시실이며, 20m 길이의 창을 통해 밤낮으로 밖에서도 작품이 보입니다. 동선의 첫 자리를 누구에게 주는가가 기관의 태도를 보여줍니다.</p>
+    </div>
+  </section>
+
+  <section class="ref">
+    <div>
+      <h2>재료별 권장 조도 참고표</h2>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>재료</th><th>권장 조도</th><th>이 동선에서 만나는 곳</th></tr></thead>
+          <tbody>
+            <tr><td>종이·수채·사진·직물·나무껍질 회화 등 빛에 매우 민감한 재료</td><td class="num">≈ 50 lux</td><td>아시안 랜턴 LL1, Yiribana 일부</td></tr>
+            <tr><td>유화·템페라·아크릴·목재 등 중간 민감 재료</td><td class="num">150–200 lux</td><td>그랜드 코트, 20세기 갤러리</td></tr>
+            <tr><td>석재·금속·도자·유리 등 빛에 강한 재료</td><td class="num">300 lux 이상 가능</td><td>그랜드 코트 도자, 야외 조각, Yiribana 창가 금속 작품</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="fine">박물관 보존 분야에서 통용되는 일반 기준값입니다. 이 미술관의 실측값이 아니므로, 발표에서는 "일반 기준"으로 인용하세요.</p>
+    </div>
+    <div class="src">
+      <h2>자료와 유의 사항</h2>
+      <ul>
+        <li>단면도는 층 관계와 동선을 설명하기 위한 개념도이며 실제 평면·축척과 다릅니다.</li>
+        <li>작품은 소장품 순환 전시로 교체될 수 있습니다. 방문 당시 본 작품은 각 공간의 <b>현장 메모</b>에 적어 두세요. 메모는 이 브라우저에만 저장됩니다.</li>
+        <li>건축·조명 정보: Art Gallery of NSW 공식 안내, Arup·Architectus 프로젝트 소개, Green Building Council of Australia 사례, Jadecross 그랜드 코트 조명 사례.</li>
+        <li><a href="https://www.artgallery.nsw.gov.au/visit/plan-your-visit/" target="_blank" rel="noopener">미술관 방문 안내 페이지</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>뮤지오그래피 수업 발표 자료 · 캠퍼스 정보는 2026년 기준 공개 자료로 정리</footer>
+</div>
+
+<script>
+const ROOMS = {
+  nn_vest: { b:"nn", lvl:"입구층", x:40, y:140, w:70, h:82, name:"그랜드 베스티뷸", short:["베스티뷸"], en:"Grand Vestibule",
+    sum:"열주 현관을 지나 들어서는 1909년 건물의 입구 홀. 도시에서 미술관으로 넘어가는 문턱입니다.",
+    hang:"작품보다 건축이 먼저 보이는 공간. 정면 축선이 곧바로 그랜드 코트로 이어져, 들어서자마자 첫 전시실의 안쪽 벽까지 시선이 관통합니다.",
+    works:[], light:"day", lv:4,
+    lightTxt:"현관과 높은 창으로 들어오는 자연광이 주를 이룹니다. 바깥 햇빛에서 전시실의 확산광으로 눈이 적응하는 완충 구간 역할을 합니다.",
+    point:"신고전주의 현관이 '예술의 신전'이라는 19세기 미술관 유형을 그대로 보여줍니다. 동선 A의 출발점으로 삼으면, 이후 SANAA 건물의 열린 입구와 극명하게 대비됩니다.",
+    check:["입구에서 그랜드 코트 안쪽까지 시선이 막힘 없이 이어지는지","안내 데스크·지도 배치 위치"] },
+  nn_courts: { b:"nn", lvl:"입구층", x:114, y:140, w:176, h:82, name:"그랜드 코트", short:["그랜드 코트"], en:"Grand Courts · 1400–1900",
+    sum:"월터 리버티 버넌이 설계한 빅토리아 시대 전시실. 15세기 르네상스부터 19세기까지의 유럽 미술과 19세기 호주 미술, 시대와 지역을 넘나드는 도자를 함께 보여줍니다.",
+    hang:"높은 볼트 천장 아래 대형 역사화·신화화를 눈높이보다 높게 걸고, 빅토리아풍의 짙은 벽색으로 19세기 전시 방식을 되살렸습니다. 중국 경덕진 자기와 일본 가키에몬 양식 아리타 자기를 18세기 유럽 도자와 나란히 두어 교역과 영향 관계를 읽게 합니다.",
+    works:[["키몬과 이피게니아","프레더릭 레이턴","1884"],["솔로몬 왕을 방문한 시바의 여왕","에드워드 포인터","1890"],["에드워드 3세 궁정의 초서","포드 매덕스 브라운","1847–51"],["불을 지펴라 (Fire's on)","아서 스트리턴","1891"],["황금 양털","톰 로버츠","1894"]],
+    light:"sky", lv:3,
+    lightTxt:"2021–22년 복원 때 곡면 천창 뒤의 T8 형광등을 선형 LED로 교체하고 무선(Casambi) 제어를 도입했습니다. 천창 전체가 고르게 빛나 하늘빛 같은 확산광이 위에서 내려오는 효과를 냅니다.",
+    point:"'빛이 위에서 오는 방'이라는 19세기 스카이라이트 갤러리의 원리를 유지하면서 광원만 인공으로 바꾼 사례입니다. 문화유산 공간에서 진정성(원형)과 보존(조도 통제)을 어떻게 절충했는지 설명하기 좋습니다.",
+    check:["벽색이 전시실마다 다른지, 작품 액자와 어떤 관계인지","천창 빛과 작품 개별 스포트의 비율","의자·벤치 위치와 대형 작품 감상 거리"] },
+  nn_20g: { b:"nn", lvl:"입구층", x:294, y:140, w:92, h:82, name:"20세기 갤러리 (전반기)", short:["20세기","전반기"], en:"20th-century galleries · ground",
+    sum:"1972년 캡틴 쿡 윙(앤드루 앤더슨스 설계)을 새로 단장한 전시실. 20세기 전반의 호주 미술과 국제 미술을 함께 걸어 연결과 차이를 보여줍니다.",
+    hang:"호주 모더니즘을 국제 모더니즘 옆에 두는 비교 배치. 그랜드 코트의 조밀한 벽에서 벗어나 간격이 넓어지고 작품 하나하나가 독립된 대상으로 보이기 시작합니다.",
+    works:[["다리의 곡선","그레이스 코싱턴 스미스","1928–29"],["임플리먼트 블루","마거릿 프레스턴","1927"],["소팔라","러셀 드라이스데일","1947"],["선베이커","맥스 듀페인","1937"]],
+    light:"led", lv:3,
+    lightTxt:"자연광 대신 통제된 인공조명 위주. 19세기 전시실의 천창 확산광에서 개별 작품을 비추는 조명으로 바뀌는 전환점입니다.",
+    point:"건물의 시대(1972)가 곧 전시 방식의 시대(모던 화이트 큐브)와 맞물립니다. 그랜드 코트에서 이 방으로 넘어올 때 벽색·천장 높이·작품 간격이 한꺼번에 바뀌는 순간을 발표 사진으로 잡기 좋습니다.",
+    check:["벽 색이 흰색 계열로 바뀌는 지점","트랙 조명 여부와 벽면의 빛 번짐(스캘럽)","사진 작품의 조도가 회화보다 낮은지"] },
+  nn_asia_g: { b:"nn", lvl:"입구층", x:390, y:104, w:84, h:118, name:"아시안 랜턴", short:["아시안","랜턴"], en:"Asian Lantern · ground",
+    sum:"2003년 개관한 흰 유리 파빌리온. 아시아 곳곳의 떠 있는 등(燈)에서 착안한 건축가 리처드 존슨의 설계입니다. 아시아 미술은 이곳과 아래층, 두 개 층에 걸쳐 전시됩니다.",
+    hang:"독립형 진열장과 좌대 위 조각을 중심으로, 사방에서 돌아보며 감상하도록 배치합니다. 벽에 거는 회화 중심의 옆 전시실과 감상 자세가 달라집니다.",
+    works:[], light:"diffuse", lv:4,
+    lightTxt:"반투명한 흰 유리 외피가 햇빛을 걸러 부드럽게 퍼뜨립니다. 건물 자체가 거대한 조명 기구처럼 작동하며, 밤에는 안쪽 빛으로 밖에서 등처럼 보입니다.",
+    point:"'등'이라는 은유가 외관 디자인에 그치지 않고 전시실 조명 방식까지 결정한 사례입니다. 빛에 강한 청동·석조·도자는 이 층, 민감한 재료는 아래층으로 나누는 층별 분리를 추측하고 현장에서 확인해 보세요.",
+    check:["유리 외피를 통과한 빛의 색감(차갑거나 따뜻한지)","빛에 민감한 작품이 이 층에 있는지","진열장 내부 조명 방식"] },
+  nn_asia_l1: { b:"nn", lvl:"LL1", x:390, y:238, w:84, h:62, name:"아시안 랜턴 LL1", short:["아시안 LL1"], en:"Asian Lantern · lower level 1",
+    sum:"인도네시아에서 몽골, 일본에서 이란까지 아우르는 아시아 소장품. 흙·물·불 등 자연의 원소를 주제로 작품을 묶는 방식으로 전시해 왔습니다.",
+    hang:"지역·시대 대신 주제(원소)로 묶어, 서로 다른 문화권의 작품이 한 진열장 안에서 대화하게 합니다.",
+    works:[], light:"low", lv:2,
+    lightTxt:"지하층이라 자연광이 거의 없어 조도를 낮게 통제하기 쉽습니다. 비단·종이 등 빛에 민감한 재료를 보여주기 적합한 조건입니다.",
+    point:"위층(밝은 랜턴)과 아래층(어두운 지하)의 대비를 재료 보존 논리로 설명할 수 있습니다. 지리적 분류 대신 주제 분류를 택한 큐레이션도 발표 포인트입니다.",
+    check:["현재 전시 주제와 묶음 방식","두루마리·병풍 등 종이·비단 작품의 조도","위층에서 내려오는 계단의 빛 변화"] },
+  nn_20l1: { b:"nn", lvl:"LL1", x:150, y:238, w:236, h:62, name:"20세기 갤러리 (후반기)", short:["20세기 · 1960s–2000"], en:"20th-century galleries · lower level 1",
+    sum:"1960년대부터 2000년까지. 팝아트에서 정치적 미술까지, 20세기 후반의 호주 미술과 국제 미술을 함께 봅니다.",
+    hang:"넓고 낮은 전시실에 대형 회화와 설치를 여유 있게 배치합니다. 한 층 내려오면서 작품의 크기와 형식이 커지고 다양해집니다.",
+    works:[["발코니 2","브렛 화이틀리","1975"],["자화상을 위한 습작","프랜시스 베이컨","1976"]],
+    light:"led", lv:3,
+    lightTxt:"지하층의 통제된 인공조명. 위층보다 천장이 낮아 조명 기구와 작품의 거리가 가깝고, 빛의 방향성이 더 뚜렷하게 느껴집니다.",
+    point:"같은 건물 안에서 연대가 아래로 흐르는 수직 연대기의 한 단계입니다. 동선 A에서는 이 방을 나와 아트 가든으로 이어지며, 건물 밖의 밝은 빛으로 장면이 바뀝니다.",
+    check:["천장 높이와 조명 기구의 노출 여부","대형 작품 앞 감상 거리 확보","Naala Badu로 가는 출구 안내"] },
+  garden: { b:"out", lvl:"야외", x:490, y:166, w:135, h:56, name:"아트 가든 · 랜드브리지", short:["아트 가든"], en:"Art Garden & land bridge",
+    sum:"두 건물을 잇는 야외 산책로. 도로 위를 덮은 랜드브리지와 조경, 야외 조각이 두 건물 사이의 '쉼표'를 만듭니다.",
+    hang:"실내 동선이 끊기는 구간을 풍경과 공공미술로 채워 캠퍼스 전체를 하나의 전시 경험으로 엮습니다.",
+    works:[], light:"out", lv:5,
+    lightTxt:"자연광 그대로. 두 건물 사이에서 눈이 완전히 쉬는 구간입니다.",
+    point:"두 건물이 물리적으로 떨어져 있다는 약점을 산책 경험으로 바꾼 설계입니다. 동선 설계에서 '전이 공간'이 관람 피로를 줄이는 역할을 설명하기 좋습니다.",
+    check:["야외 작품 목록","두 건물 사이 이동 시간(분)","방향 표지판 위치"] },
+  nb_plaza: { b:"out", lvl:"입구층", x:632, y:166, w:88, h:56, name:"웰컴 플라자", short:["웰컴 플라자"], en:"Welcome Plaza",
+    sum:"Naala Badu 입구 앞 광장. 커미션 작품이 방향을 알려주는 이정표 역할을 합니다.",
+    hang:"계단 꼭대기에 놓인 대형 꽃 조각이 멀리서도 보여 길 찾기를 돕고, 사람 형상 조각들이 광장에 모인 군중처럼 서 있습니다.",
+    works:[["우주에 피는 꽃","쿠사마 야요이","2022"],["모두 여기로 온다 (Here Comes Everybody)","프랜시스 업리처드","2022"]],
+    light:"out", lv:5,
+    lightTxt:"야외 자연광. 쿠사마의 꽃 조각은 낮과 밤 모두 보이도록 계획되었습니다.",
+    point:"작품이 곧 사인(sign)이 되는 웨이파인딩 전략입니다. 무료 공공 공간에 가장 대중적인 작가를 둔 선택도 기관의 개방성을 보여주는 장치로 읽을 수 있습니다.",
+    check:["광장에서 입구가 보이는 각도","야간 조명 여부"] },
+  nb_entry: { b:"nb", lvl:"입구층", x:724, y:140, w:80, h:82, name:"입구 파빌리온", short:["입구","파빌리온"], en:"Entrance pavilion",
+    sum:"SANAA 특유의 얇은 지붕과 유리벽으로 된 입구 공간. 안에서도 바깥 풍경과 항구 방향이 보입니다.",
+    hang:"작품보다 '보는 방향'을 먼저 제시하는 공간. 투명한 벽 너머로 아래층 파빌리온과 항구가 내려다보여, 앞으로 내려갈 동선을 미리 보여줍니다.",
+    works:[], light:"day", lv:5,
+    lightTxt:"순환 공간은 자연광을 최대로 들이도록 설계되었습니다. 전시실보다 순환 공간이 훨씬 밝은 것이 이 건물 조명 전략의 핵심입니다.",
+    point:"Naala Nura의 닫힌 신전형 현관과 정반대의 입구입니다. 두 입구 사진을 나란히 놓으면 100년 사이 미술관 유형의 변화가 한눈에 보입니다.",
+    check:["입구에서 항구가 보이는지","유리벽의 반사와 눈부심 처리"] },
+  nb_yiri: { b:"nb", lvl:"입구층", x:808, y:140, w:150, h:82, name:"Yiribana 갤러리", short:["Yiribana","갤러리"], en:"Yiribana Gallery · Aboriginal & Torres Strait Islander art",
+    sum:"미술관 소장 호주 원주민·토레스 해협 섬 주민 미술의 상설 전시 공간. Naala Badu에 들어서면 가장 먼저 만나는 전시실입니다.",
+    hang:"시드니 원주민 언어 '부르방가나(burbangana)', 곧 '내 손을 잡아 일으켜 달라'는 초대의 말에서 전시 구성을 착안했습니다. 20m 길이의 창에는 로레인 코넬리-노시의 대형 커미션이 놓여 밖에서도 밤낮으로 보입니다.",
+    works:[["나르봉-갈랑 (많은 가방들)","로레인 코넬리-노시","2022"]],
+    light:"led", lv:3,
+    lightTxt:"전시실 내부는 LED로 통제하고, 창가에는 녹슨 금속 등 빛에 강한 재료의 작품을 두었습니다. 재료의 광내성에 따라 창가와 안쪽을 나눈 배치입니다.",
+    point:"옛 건물의 최하층에서 새 건물의 입구 옆으로 옮긴 것은 공간 위계를 통한 메시지입니다. 창가 작품은 거리에서 미술관을 광고하는 쇼윈도 역할도 합니다.",
+    check:["창가와 안쪽의 밝기 차이","나무껍질 회화 등 민감한 작품의 위치","작품 캡션의 언어 병기 여부"] },
+  nb_l1: { b:"nb", lvl:"LL1", x:740, y:238, w:218, h:62, name:"LL1 현대 전시 갤러리", short:["LL1 현대 갤러리"], en:"Lower level 1 · contemporary galleries",
+    sum:"한 층 내려가면 넓은 현대미술 전시실이 이어집니다. 가장 큰 전시실인 아이작 와킬 갤러리가 이 층에 있습니다.",
+    hang:"칸막이 없이 트인 대형 전시실이라 설치 작품, 영상, 대형 조각을 자유롭게 배치할 수 있습니다. 전시마다 내부 구획이 크게 달라지는 가변형 공간입니다.",
+    works:[], light:"led", lv:3,
+    lightTxt:"전시실은 LED로 통제하고, 전시실 밖 순환 공간과 테라스 쪽은 자연광이 들어옵니다. 방을 나설 때마다 밝아지는 리듬이 반복됩니다.",
+    point:"'흰 상자'를 여러 개 흩어 놓고 사이사이를 밝은 순환 공간으로 채운 SANAA식 파빌리온 배치입니다. 전시실과 전시실 사이에서 항구 풍경으로 눈을 쉬게 하는 설계입니다.",
+    check:["방문 당시 설치된 작품","전시실 사이 순환 공간에서 보이는 풍경"] },
+  nb_terrace: { b:"out", lvl:"LL1", x:962, y:244, w:120, h:56, name:"하버 테라스", short:["하버 테라스"], en:"Harbour Terrace",
+    sum:"울루물루 만을 파노라마로 내려다보는 야외 테라스. 건물 이름 '물을 보는 곳'이 그대로 체험되는 자리입니다.",
+    hang:"작품 대신 풍경을 보여주는 구간. 실내 동선 중간에 바깥으로 나오는 출구를 두어 관람 피로를 덜어줍니다.",
+    works:[], light:"out", lv:5,
+    lightTxt:"야외 자연광. 동선 중 가장 밝은 지점 가운데 하나입니다.",
+    point:"'Naala Badu(물을 보는 곳)'라는 이름이 설계 개념이자 동선의 목적지라는 점을 보여주는 곳입니다.",
+    check:["테라스에서 보이는 방향(북동)","실내외 전환 지점의 문턱"] },
+  nb_l2: { b:"nb", lvl:"LL2", x:760, y:314, w:170, h:62, name:"LL2 아트리움", short:["LL2 아트리움"], en:"Lower level 2 · atrium",
+    sum:"LL2의 중심 공간. 계단과 아트리움이 여러 층을 시각적으로 이어, 아래 탱크로 내려가는 흐름을 만듭니다.",
+    hang:"조각과 입체 작품이 순환 공간에 놓여, 이동하면서 작품을 지나치는 '걸으며 보는' 배치가 됩니다.",
+    works:[], light:"day", lv:4,
+    lightTxt:"순환 공간이라 자연광이 들어옵니다. 여기서부터 아래로 갈수록 빛이 급격히 줄어듭니다.",
+    point:"탱크로 내려가기 전 마지막 밝은 공간입니다. 빛이 줄어드는 하강 시퀀스의 시작점으로 설명할 수 있습니다.",
+    check:["아트리움에 놓인 작품","탱크로 내려가는 계단의 조명"] },
+  nb_spirit: { b:"nb", lvl:"LL2", x:934, y:314, w:70, h:62, name:"빛의 집 (Spirit House)", short:["빛의 집"], en:"Lee Mingwei · Spirit House 光之屋",
+    sum:"리밍웨이의 커미션 작품. SANAA와 함께 건물 바깥 흙다짐(래머드 어스) 벽 안에 만든 작은 명상 공간입니다.",
+    hang:"타이베이 근교에서 조각가 황신중이 만든 청동 불상이 명상하는 자세로 앉아 있고, 매일 그 손에 포장된 돌 하나가 놓입니다. 돌이 있으면 관람객이 가져갈 수 있습니다.",
+    works:[["빛의 집 (Spirit House)","리밍웨이","2022"]],
+    light:"low", lv:2,
+    lightTxt:"작은 방 안에 빛을 절제해 명상적인 분위기를 만듭니다. 주변 아트리움보다 확실히 어둡게 느껴지는 공간입니다.",
+    point:"작가가 1999년 이 미술관에서 수나라 불상을 보고 받은 감흥이 출발점입니다. 소장품의 기억이 새 건물의 공간이 된 사례이자, 관람객이 작품의 일부를 가져가는 참여형 작품입니다.",
+    check:["방문 당시 불상 손에 돌이 있었는지","방 안의 빛 방향과 밝기"] },
+  nb_tank: { b:"nb", lvl:"LL4", x:730, y:430, w:300, h:92, name:"탱크", short:["탱크 · The Tank"], en:"The Tank · former WWII oil tank",
+    sum:"제2차 세계대전 때 쓰던 2,200㎡ 규모의 지하 저유조. 7m 높이 기둥 100여 개가 숲처럼 늘어선 공간을 장소 특정적 커미션에 씁니다.",
+    hang:"기둥 사이사이에 작품을 흩어 놓아 관람객이 숲을 헤매듯 돌아다닙니다. 정해진 순서가 없는 배회형 동선이 특징입니다.",
+    works:[["상상의 끝 (The End of Imagination)","아드리안 비야르 로하스","2022 개관 커미션"],["열쇠는 매트 밑에 (The Key's Under the Mat)","마이크 휴슨","2025 커미션"]],
+    light:"dark", lv:1,
+    lightTxt:"자연광이 전혀 들지 않는 지하. 어둠을 바탕으로 작품과 기둥에만 포인트 조명을 주어 공간의 깊이를 만들어 냅니다.",
+    point:"동선의 가장 깊고 어두운 끝이자 가장 새로운 작품이 있는 곳입니다. 산업 유산을 비우지 않고 기둥과 콘크리트 표면을 그대로 남겨 작품의 무대로 쓴 적응적 재사용 사례입니다.",
+    check:["방문 당시 탱크의 커미션 작품","기둥 표면의 흔적(유류 자국 등) 보존 여부","눈이 어둠에 적응하는 데 걸린 시간"] }
+};
+
+const LIGHT = {
+  day:["자연광 주도","--l-day"], sky:["천창형 확산광","--l-sky"], diffuse:["반투명 유리 확산","--l-diffuse"],
+  led:["갤러리 LED 제어","--l-led"], low:["저조도 보존 조명","--l-low"], dark:["암부 · 포인트 조명","--l-dark"], out:["야외","--l-out"]
+};
+
+const ROUTES = {
+  A: { label:"A · 역사 → 현대", stops:["nn_vest","nn_courts","nn_20g","nn_asia_g","nn_asia_l1","nn_20l1","garden","nb_plaza","nb_entry","nb_yiri","nb_l1","nb_terrace","nb_l2","nb_spirit","nb_tank"] },
+  B: { label:"B · 현대 → 역사", stops:["nb_plaza","nb_entry","nb_yiri","nb_l1","nb_terrace","nb_l2","nb_spirit","nb_tank","garden","nn_vest","nn_courts","nn_20g","nn_asia_g","nn_asia_l1","nn_20l1"] }
+};
+const CORE = { nn:388, nb:790 };
+const NS = "http://www.w3.org/2000/svg";
+const $ = (id) => document.getElementById(id);
+const svg = $("plan");
+const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); return true; } catch(e){ return false; } }
+};
+
+function el(tag, attrs, parent){ const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); if (parent) parent.appendChild(n); return n; }
+function center(r){ return { x: r.x + r.w/2, y: r.y + r.h - 24 }; }
+
+// 공간 그리기
+const roomsG = $("rooms"), pinsG = $("pins");
+for (const id in ROOMS) {
+  const r = ROOMS[id]; r.id = id;
+  const g = el("g", { class:"room " + r.b, "data-l": r.light, "data-id": id, tabindex:"0", role:"button", "aria-label": r.name }, roomsG);
+  el("rect", { x:r.x, y:r.y, width:r.w, height:r.h, rx: r.b === "nb" ? 2 : 0 }, g);
+  if (id === "nb_tank") for (let c = 0; c < 9; c++) el("line", { class:"tank-col", x1: r.x + 22 + c*32, y1: r.y + 28, x2: r.x + 22 + c*32, y2: r.y + r.h - 8 }, g);
+  const cx = r.x + r.w/2;
+  r.short.forEach((t, i) => { const tx = el("text", { x: cx, y: r.y + 19 + i * 16, "text-anchor":"middle" }, g); tx.textContent = t; });
+  if (id === "nb_yiri") el("line", { class:"window-mark", x1:r.x + 10, y1:r.y + r.h, x2:r.x + r.w - 10, y2:r.y + r.h }, roomsG);
+  // 작품 핀
+  r.works.forEach((w, i) => {
+    const n = r.works.length, px = r.x + (r.w / (n + 1)) * (i + 1), py = r.y + r.h - 9;
+    el("rect", { class:"pin", x: px - 4, y: py - 4, width: 8, height: 8, transform:`rotate(45 ${px} ${py})` }, pinsG);
+  });
+  g.addEventListener("click", () => select(id, true));
+  g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); select(id, true); } });
+}
+// 동선 경로
+let routeKey = store.get("agnsw-route") === "B" ? "B" : "A";
+let stopIdx = 0, pathLen = 0, stopLens = [], playing = false, raf = 0, curLen = 0;
+
+function buildPath(stops){
+  const pts = [], marks = [];
+  stops.forEach((id, i) => {
+    const r = ROOMS[id], c = center(r);
+    if (i === 0) { pts.push(c); marks.push(0); return; }
+    const pr = ROOMS[stops[i-1]], p = center(pr);
+    if (Math.abs(p.y - c.y) > 20) {
+      const core = CORE[r.b] ?? CORE[pr.b];
+      pts.push({ x: core, y: p.y }, { x: core, y: c.y }, c);
+    } else if (Math.abs(p.y - c.y) > 0) {
+      pts.push({ x: c.x, y: p.y }, c);
+    } else pts.push(c);
+    marks.push(pts.length - 1);
+  });
+  const d = pts.map((p, i) => (i ? "L" : "M") + p.x + "," + p.y).join(" ");
+  return { d, pts, marks };
+}
+
+function drawRoute(){
+  const R = ROUTES[routeKey], built = buildPath(R.stops);
+  ["routeHalo","routeLine"].forEach(id => $(id).setAttribute("d", built.d));
+  $("routeDone").setAttribute("d", built.d);
+  const line = $("routeLine"); pathLen = line.getTotalLength();
+  // 각 정거장까지의 누적 길이
+  let acc = 0; const segLens = [0];
+  for (let i = 1; i < built.pts.length; i++) { acc += Math.hypot(built.pts[i].x - built.pts[i-1].x, built.pts[i].y - built.pts[i-1].y); segLens.push(acc); }
+  stopLens = built.marks.map(m => segLens[m] * (pathLen / (acc || 1)));
+  const done = $("routeDone"); done.style.strokeDasharray = pathLen;
+  // 정거장 번호
+  const nums = $("stopNums"); nums.textContent = "";
+  R.stops.forEach((id, i) => {
+    const r = ROOMS[id];
+    const g = el("g", { class:"stopnum", "data-i": i }, nums);
+    const x = r.x + 2, y = r.y + 1;
+    el("circle", { cx:x, cy:y, r:10 }, g);
+    const t = el("text", { x, y }, g); t.textContent = i + 1;
+  });
+  $("routeMeta").textContent = `${R.label} · 정거장 ${R.stops.length}곳 · 축척 없음`;
+  buildStrip();
+}
+
+function setProgress(len){
+  curLen = len;
+  const p = $("routeLine").getPointAtLength(Math.max(0, Math.min(len, pathLen)));
+  $("walker").setAttribute("cx", p.x); $("walker").setAttribute("cy", p.y);
+  $("routeDone").style.strokeDashoffset = pathLen - len;
+}
+
+function markCurrent(){
+  $("stopNums").querySelectorAll(".stopnum").forEach(g => g.classList.toggle("cur", +g.dataset.i === stopIdx));
+  $("stops").querySelectorAll(".stop").forEach((b, i) => {
+    const on = i === stopIdx; b.classList.toggle("cur", on); b.setAttribute("aria-current", on ? "step" : "false");
+    if (on) b.scrollIntoView({ block:"nearest", inline:"nearest", behavior: reduce ? "auto" : "smooth" });
+  });
+}
+
+function goStop(i, animate){
+  const stops = ROUTES[routeKey].stops;
+  stopIdx = (i + stops.length) % stops.length;
+  const target = stopLens[stopIdx];
+  showRoom(stops[stopIdx]);
+  markCurrent();
+  if (!animate || reduce) { setProgress(target); return; }
+  animateTo(target, null);
+}
+
+function animateTo(target, done){
+  cancelAnimationFrame(raf);
+  const from = curLen, dist = target - from, dur = Math.min(1600, 300 + Math.abs(dist) * 1.4), t0 = performance.now();
+  const step = (now) => {
+    const t = Math.min(1, (now - t0) / dur), e = t < .5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2) / 2;
+    setProgress(from + dist * e);
+    if (t < 1) raf = requestAnimationFrame(step); else if (done) done();
+  };
+  raf = requestAnimationFrame(step);
+}
+
+function play(){
+  const stops = ROUTES[routeKey].stops;
+  if (stopIdx >= stops.length - 1) { stopIdx = -1; setProgress(0); }
+  playing = true; $("play").textContent = "❚❚ 정지";
+  const advance = () => {
+    if (!playing) return;
+    if (stopIdx >= stops.length - 1) return stop();
+    stopIdx++;
+    showRoom(stops[stopIdx]); markCurrent();
+    if (reduce) { setProgress(stopLens[stopIdx]); setTimeout(advance, 2200); return; }
+    animateTo(stopLens[stopIdx], () => setTimeout(advance, 1600));
+  };
+  advance();
+}
+function stop(){ playing = false; cancelAnimationFrame(raf); $("play").textContent = "▶ 재생"; }
+
+// 해설 패널
+let activeId = null;
+function select(id, fromMap){
+  const stops = ROUTES[routeKey].stops, i = stops.indexOf(id);
+  stop();
+  if (i >= 0) goStop(i, true); else showRoom(id);
+}
+
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" })[c]); }
+
+function showRoom(id){
+  activeId = id;
+  roomsG.querySelectorAll(".room").forEach(g => g.classList.toggle("active", g.dataset.id === id));
+  const r = ROOMS[id], stops = ROUTES[routeKey].stops, i = stops.indexOf(id);
+  const bld = r.b === "nn" ? '<span class="tag nn">Naala Nura</span>' : r.b === "nb" ? '<span class="tag nb">Naala Badu</span>' : '<span class="tag">야외</span>';
+  const [lName, lTok] = LIGHT[r.light];
+  const meter = [1,2,3,4,5].map(n => `<b class="${n <= r.lv ? "on" : ""}"></b>`).join("");
+  const works = r.works.length
+    ? `<ul class="works">${r.works.map(w => `<li><span>${esc(w[0])}<br><span class="who">${esc(w[1])} · ${esc(w[2])}</span></span></li>`).join("")}</ul>`
+    : `<p class="check">특정 대표작보다 공간 경험이 중심인 곳입니다. 방문 때 본 작품은 아래 현장 메모에 남기세요.</p>`;
+  const note = store.get("agnsw-note-" + id) || "";
+  $("panel").innerHTML = `
+    <div class="p-kicker"><span class="tag step">${i + 1} / ${stops.length}</span>${bld}<span class="tag">${esc(r.lvl)}</span></div>
+    <div><h3>${esc(r.name)}</h3><div class="en">${esc(r.en)}</div></div>
+    <p class="sum">${esc(r.sum)}</p>
+    <div class="sec"><h4>작품 배치</h4><p>${esc(r.hang)}</p></div>
+    <div class="sec"><h4>대표 작품 ${r.works.length ? "· 소장품 순환으로 교체될 수 있음" : ""}</h4>${works}</div>
+    <div class="sec"><h4>조명</h4>
+      <div class="lightbar"><span class="sw" style="background:var(${lTok})"></span><strong>${lName}</strong><span class="meter" aria-label="체감 밝기 ${r.lv}/5">${meter}</span></div>
+      <p>${esc(r.lightTxt)}</p></div>
+    <div class="sec point"><h4>뮤지오그래피 포인트</h4><p>${esc(r.point)}</p></div>
+    <div class="sec check"><h4>현장 체크 포인트</h4><ul>${r.check.map(c => `<li>${esc(c)}</li>`).join("")}</ul></div>
+    <div class="sec"><h4><label for="note-field">현장 메모</label></h4>
+      <textarea id="note-field" placeholder="방문 때 본 작품, 사진 번호, 느낀 밝기 등을 적어 두세요.">${esc(note)}</textarea>
+      <div class="saved" id="savedMsg">이 브라우저에 자동 저장됩니다.</div></div>`;
+  const ta = $("note-field");
+  ta.addEventListener("input", () => { $("savedMsg").textContent = store.set("agnsw-note-" + id, ta.value) ? "저장됨" : "이 브라우저에서는 저장할 수 없습니다. 내용을 따로 복사해 두세요."; });
+}
+
+// 정거장 스트립
+function buildStrip(){
+  const box = $("stops"); box.textContent = "";
+  ROUTES[routeKey].stops.forEach((id, i) => {
+    const r = ROOMS[id], b = document.createElement("button");
+    b.type = "button"; b.className = "stop";
+    b.innerHTML = `<span class="bar" style="height:${r.lv * 20}%;background:var(${LIGHT[r.light][1]});border:1px solid var(--line)"></span><span class="n">${String(i+1).padStart(2,"0")} · ${esc(r.lvl)}</span><span class="t">${esc(r.name)}</span>`;
+    b.setAttribute("aria-label", `${i+1}번 ${r.name}, 체감 밝기 ${r.lv}/5`);
+    b.addEventListener("click", () => { stop(); goStop(i, true); });
+    box.appendChild(b);
+  });
+}
+
+// 컨트롤
+function setRoute(k){
+  stop(); routeKey = k; store.set("agnsw-route", k);
+  $("routeA").setAttribute("aria-pressed", k === "A"); $("routeB").setAttribute("aria-pressed", k === "B");
+  drawRoute(); goStop(0, false);
+}
+$("routeA").addEventListener("click", () => setRoute("A"));
+$("routeB").addEventListener("click", () => setRoute("B"));
+
+function layer(btnId, cls, extra){
+  const b = $(btnId);
+  b.addEventListener("click", () => {
+    const on = b.getAttribute("aria-pressed") !== "true";
+    b.setAttribute("aria-pressed", on); svg.classList.toggle(cls, on);
+    if (extra) extra(on);
+    store.set("agnsw-" + cls, on ? "1" : "0");
+  });
+  const saved = store.get("agnsw-" + cls);
+  if (saved !== null && (saved === "1") !== (b.getAttribute("aria-pressed") === "true")) b.click();
+}
+layer("lyRoute", "show-route");
+layer("lyLight", "show-light", on => { $("legendLight").hidden = !on; });
+layer("lyWorks", "show-works");
+
+$("play").addEventListener("click", () => playing ? stop() : play());
+$("prev").addEventListener("click", () => { stop(); goStop(stopIdx - 1, true); });
+$("next").addEventListener("click", () => { stop(); goStop(stopIdx + 1, true); });
+document.addEventListener("keydown", (e) => {
+  if (e.target.closest("textarea, input")) return;
+  if (e.key === "ArrowRight") { e.preventDefault(); stop(); goStop(stopIdx + 1, true); }
+  else if (e.key === "ArrowLeft") { e.preventDefault(); stop(); goStop(stopIdx - 1, true); }
+  else if (e.key === " " && !e.target.closest("button, [role=button]")) { e.preventDefault(); playing ? stop() : play(); }
+});
+
+setRoute(routeKey);
+</script>
