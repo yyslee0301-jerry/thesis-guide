@@ -201,7 +201,7 @@ dialog::backdrop { background: rgba(18, 20, 16, .72); }
 .viewer .blk h4 { margin: 0 0 3px; font-size: 12px; letter-spacing: .12em; color: var(--gold); font-weight: 600; }
 .viewer .blk p { font-size: 15px; }
 .viewer .x { position: absolute; top: 10px; right: 10px; width: 36px; height: 36px; border-radius: 999px; border: 0; background: rgba(20,22,18,.6); color: #f5f1e6; cursor: pointer; font-size: 18px; z-index: 2; }
-.viewer .nav { display: flex; gap: 8px; }
+.viewer .nav { display: flex; flex-wrap: wrap; gap: 8px; }
 .viewer .nav button { border: 1px solid var(--line); background: var(--paper); border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 14px; }
 
 /* 발표 내비 */
@@ -234,6 +234,51 @@ body.show-notes .note { display: block; }
 .stops3d button { width: 30px; height: 30px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; font-size: 12.5px; font-variant-numeric: tabular-nums; }
 .stops3d button.work { border-color: var(--gold); color: var(--brown); font-weight: 600; }
 .stops3d button[aria-current="step"] { background: var(--gold); border-color: var(--gold); color: var(--surface); }
+
+/* Chatterbox */
+.chat-intro { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 28px; align-items: center; }
+@media (max-width: 900px) { .chat-intro { grid-template-columns: minmax(0, 1fr); } }
+.leaflet { margin: 0; display: grid; gap: 8px; }
+.leaflet img { width: 100%; height: auto; border-radius: 4px; border: 1px solid var(--line); }
+.leaflet figcaption { font-size: 12.5px; color: var(--muted); }
+.chat-points { display: grid; gap: 18px; }
+.pts { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.pts li { display: grid; gap: 2px; padding: 12px 0; border-top: 1px solid var(--line); }
+.pts li:last-child { border-bottom: 1px solid var(--line); }
+.pts b { font-weight: 600; }
+.pts span { color: var(--muted); font-size: 15px; }
+.chatbox { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; background: #2d322c; border-radius: 6px; padding: 24px; color: #f4f1ea; }
+@media (max-width: 900px) { .chatbox { grid-template-columns: minmax(0, 1fr); } }
+.cb-left { display: grid; gap: 12px; align-content: start; }
+.cb-left svg { width: 100%; max-width: 520px; height: auto; justify-self: center; display: block; }
+.cb-fold { display: flex; gap: 12px; align-items: center; font-size: 14px; color: #d9d4c6; min-height: 32px; flex-wrap: wrap; }
+.fold-ic { width: 26px; height: 26px; border: 2px solid #f4f1ea; transform: rotate(45deg); transition: transform .18s ease; flex: none; }
+.fold-ic.a { transform: rotate(45deg) scaleX(.45); }
+.fold-ic.b { transform: rotate(45deg) scaleY(.45); }
+#spellOut b { color: #f2d33e; letter-spacing: .08em; }
+.cb-right { display: grid; gap: 18px; align-content: start; min-width: 0; }
+.cb-step h4 { margin: 0 0 8px; font-size: 13px; letter-spacing: .08em; color: #d9bd83; font-weight: 600; }
+.cb-step h4 span { color: #b9b4a6; font-weight: 400; letter-spacing: 0; margin-left: 6px; }
+.cb-works, .cb-words { display: flex; flex-wrap: wrap; gap: 6px; }
+.cb-works button { border: 1px solid #5d6457; background: transparent; color: #f4f1ea; border-radius: 999px; padding: 5px 12px; cursor: pointer; font-size: 13.5px; }
+.cb-works button[aria-pressed="true"] { background: #f4f1ea; color: #23261f; border-color: #f4f1ea; }
+.cb-words button { border: 0; border-radius: 3px; padding: 7px 11px; cursor: pointer; font-size: 14px; font-weight: 600; color: #1f2320; display: grid; gap: 0; text-align: left; line-height: 1.25; }
+.cb-words button small { font-weight: 400; font-size: 11.5px; opacity: .8; }
+.cb-words button.lt { color: #f4f1ea; }
+.cb-words button:disabled { opacity: .28; cursor: not-allowed; }
+.cb-words button.pick { outline: 3px solid #f4f1ea; outline-offset: 2px; }
+.cb-words button.hint:not(.pick) { box-shadow: inset 0 -3px 0 #f4f1ea; }
+.cb-result { background: #f4f1ea; color: #23261f; border-radius: 4px; padding: 16px 18px; display: grid; gap: 8px; min-height: 120px; align-content: start; }
+.cb-result .fine { color: #5b5e55; }
+.cb-result .en { font-size: 14px; color: #5b5e55; font-style: italic; }
+.cb-result .ko { font-family: var(--serif); font-size: 19px; font-weight: 700; line-height: 1.45; }
+.cb-result .for { font-size: 12.5px; color: #7d6557; font-weight: 600; letter-spacing: .06em; }
+.cb-result button { justify-self: start; border: 1px solid #c9c3b3; background: transparent; border-radius: 4px; padding: 5px 12px; cursor: pointer; font-size: 13.5px; color: #23261f; }
+#cbSvg .tri { stroke: #2d322c; stroke-width: 2; transition: opacity .25s; }
+#cbSvg text { font-family: var(--sans); font-weight: 700; fill: #1f2320; pointer-events: none; }
+#cbSvg text.lt { fill: #f4f1ea; }
+#cbSvg .dim { opacity: .25; }
+#cbSvg .glow { stroke: #f4f1ea; stroke-width: 5; }
 </style>
 
 <main id="deck">
@@ -386,6 +431,41 @@ body.show-notes .note { display: block; }
     </div>
   </section>
 
+  <!-- 참여 도구 -->
+  <section class="slide" id="s-chat" aria-label="Chatterbox art tour">
+    <div class="inner">
+      <div class="kicker">07 · 관람객 참여 도구</div>
+      <h2>미술관이 건네는 질문 한 장, Chatterbox</h2>
+      <div class="chat-intro">
+        <figure class="leaflet">
+          <img src="img/chatterbox-leaflet.jpg" alt="Art Gallery NSW의 Chatterbox art tour 활동지. 색 삼각형에 작품 종류, 묘사 단어, 질문이 적혀 있다" loading="lazy">
+          <figcaption>현장에서 받은 활동지 · Chatterbox art tour © Art Gallery of New South Wales</figcaption>
+        </figure>
+        <div class="chat-points">
+          <p class="lead">종이를 접어 만드는 동서남북 놀이입니다. 작품 종류와 묘사 단어를 고르며 접었다 펴면, 작품 앞에서 해 볼 질문 하나가 나옵니다.</p>
+          <ul class="pts">
+            <li><b>관람 속도를 늦춘다</b><span>작품 앞에 멈춰 글자 수만큼 접었다 펴는 동안 작품을 한 번 더 보게 됩니다.</span></li>
+            <li><b>설명 대신 질문을 준다</b><span>정답이 적힌 해설이 아니라 보고, 상상하고, 말하게 하는 질문입니다.</span></li>
+            <li><b>동선 전체를 잇는다</b><span>"미술관 곳곳에서 반복하세요." 한 장이 여러 방의 관람을 하나로 묶습니다.</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="chatbox">
+        <div class="cb-left">
+          <svg id="cbSvg" viewBox="0 0 600 600" role="img" aria-label="Chatterbox 펼친 도면"></svg>
+          <div class="cb-fold"><span class="fold-ic" id="foldIc"></span><span id="spellOut">접었다 펴기를 기다리는 중</span></div>
+        </div>
+        <div class="cb-right">
+          <div class="cb-step"><h4>작품</h4><div class="cb-works" id="cbWorks"></div></div>
+          <div class="cb-step"><h4>① 작품 종류 고르기 <span>글자 수만큼 접었다 폅니다</span></h4><div class="cb-words" id="cbTypes"></div></div>
+          <div class="cb-step"><h4>② 안쪽 묘사 단어 고르기 <span>펼친 방향에 보이는 넷 중 하나</span></h4><div class="cb-words" id="cbDescs"></div></div>
+          <div class="cb-result" id="cbResult"><p class="fine">작품 종류를 고르면 시작합니다.</p></div>
+        </div>
+      </div>
+      <p class="note">미술관이 관람객에게 나눠 주는 활동지입니다. 실제로 접어 보면 작품 앞에서 자연스럽게 멈추게 됩니다. 오늘 대표작 중 하나로 직접 돌려 보겠습니다.</p>
+    </div>
+  </section>
+
   <!-- 7 정리 -->
   <section class="slide closing" id="s-close" aria-label="정리">
     <div class="inner">
@@ -395,6 +475,7 @@ body.show-notes .note { display: block; }
         <div class="row"><b>작품 구성</b><span>G는 과거와 모더니즘, LL1은 1960년대 이후. 층이 곧 연대기</span></div>
         <div class="row"><b>조명</b><span>천창, 스포트, 유리, 저조도, 암실. 재료와 형식이 빛을 정한다</span></div>
         <div class="row"><b>동선</b><span>계단 아래 LeWitt가 두 시대를 잇는 문턱이 된다</span></div>
+        <div class="row"><b>참여</b><span>Chatterbox 한 장이 관람객을 해석하는 사람으로 만든다</span></div>
       </div>
       <p>감사합니다.</p>
     </div>
@@ -611,7 +692,7 @@ function openWork(k){
     <div class="blk"><h4>배치</h4><p>${esc(w.hang)}</p></div>
     <div class="blk"><h4>조명</h4><p>${esc(w.light)}</p></div>
     <p class="fine"><a href="${esc(w.url)}" target="_blank" rel="noopener">${esc(w.urlLabel || "미술관 공식 작품 페이지 보기")} ↗</a></p>
-    <div class="nav"><button type="button" id="vPrev">← 이전 작품</button><button type="button" id="vNext">다음 작품 →</button></div>`;
+    <div class="nav"><button type="button" id="vPrev">← 이전 작품</button><button type="button" id="vNext">다음 작품 →</button><button type="button" data-chat="${k}">Chatterbox 질문 뽑기</button></div>`;
   $("vPrev").onclick = () => openWork(ORDER[(i - 1 + ORDER.length) % ORDER.length]);
   $("vNext").onclick = () => openWork(ORDER[(i + 1) % ORDER.length]);
   if (!dlg.open) { try { dlg.showModal(); } catch(e) { dlg.setAttribute("open", ""); } }
@@ -893,5 +974,96 @@ drawFloor();
   new ResizeObserver(resize).observe(host);
   new IntersectionObserver(es => { visible = es[0].isIntersecting; if (visible) kick(); }).observe(host);
   caption(); resize();
+})();
+</script>
+<script>
+(() => {
+  const C = { green:"#3f6b52", pink:"#e07fc4", yellow:"#f2d33e", brown:"#7d6557", navy:"#3b4ea3", red:"#d9565a", sky:"#5fb6d6", blush:"#e9cfd0" };
+  const LIGHT_TEXT = new Set([C.green, C.navy, C.brown]);
+  const TYPES = { Sculpture:["조각",C.green], Object:["오브젝트",C.pink], Photograph:["사진",C.pink], Print:["판화",C.green], Drawing:["드로잉",C.pink], Painting:["회화",C.green], Digital:["디지털",C.pink], Installation:["설치",C.green] };
+  const DESCS = {
+    Muted:["차분한",C.navy,"What music would suit this artwork? Imagine the music and move your body following the lines in the artwork.","이 작품에 어울리는 음악은 무엇일까요? 음악을 떠올리며 작품 속 선을 따라 몸을 움직여 보세요."],
+    Warm:["따뜻한",C.red,"Imagine you had to make this artwork. Describe your process and what materials you would need.","이 작품을 직접 만들어야 한다면? 만드는 과정과 필요한 재료를 설명해 보세요."],
+    Patterned:["패턴이 있는",C.yellow,"Does this artwork remind you of anything? Make up a story about the artwork.","이 작품을 보면 떠오르는 것이 있나요? 작품에 관한 이야기를 지어 보세요."],
+    Textural:["질감이 있는",C.brown,"Why do you think the artist made this artwork? If you could ask the artist a question, what would it be?","작가는 왜 이 작품을 만들었을까요? 작가에게 질문할 수 있다면 무엇을 묻고 싶나요?"],
+    Cool:["차가운",C.navy,"If you could change any part of this artwork, what would it be? Why? Invent a new title.","작품의 한 부분을 바꿀 수 있다면 어디를, 왜 바꿀까요? 새 제목도 지어 보세요."],
+    Vivid:["선명한",C.red,"Describe how the artwork makes you feel. Can you explain why? What is your favourite part?","이 작품을 보면 어떤 기분이 드나요? 이유를 설명할 수 있나요? 가장 좋아하는 부분은 어디인가요?"],
+    Abstract:["추상적",C.yellow,"Pretend to be in the artwork. What would you hear, what would you do, what would you say?","작품 속에 들어가 있다고 상상해 보세요. 무엇이 들리고, 무엇을 하고, 무슨 말을 할까요?"],
+    Realistic:["사실적",C.brown,"Stare at the artwork and then close your eyes. Describe the artwork from memory. Did you forget anything?","작품을 가만히 본 뒤 눈을 감아 보세요. 기억만으로 작품을 설명해 보세요. 빠뜨린 것이 있나요?"]
+  };
+  // 펼친 도면: 모서리마다 [종류, 묘사] 두 쌍. 위/아래 가장자리 묘사어와 좌/우 가장자리 묘사어가 펼치는 방향에 따라 번갈아 보인다
+  const S = 600, M = 300;
+  const PIECES = [
+    { type:"Sculpture", desc:"Muted",     t:[[0,0],[150,0],[150,150]],  d:[[150,0],[300,0],[150,150]],  p:[[300,300],[300,0],[150,150]], edge:"tb" },
+    { type:"Object",    desc:"Realistic", t:[[0,0],[150,150],[0,150]],  d:[[0,150],[150,150],[0,300]],  p:[[300,300],[0,300],[150,150]], edge:"lr" },
+    { type:"Photograph",desc:"Warm",      t:[[600,0],[450,150],[450,0]],d:[[450,0],[450,150],[300,0]],  p:[[300,300],[300,0],[450,150]], edge:"tb" },
+    { type:"Print",     desc:"Patterned", t:[[600,0],[600,150],[450,150]],d:[[600,150],[600,300],[450,150]], p:[[300,300],[600,300],[450,150]], edge:"lr" },
+    { type:"Drawing",   desc:"Textural",  t:[[600,600],[450,450],[600,450]],d:[[600,450],[450,450],[600,300]], p:[[300,300],[600,300],[450,450]], edge:"lr" },
+    { type:"Painting",  desc:"Cool",      t:[[600,600],[450,600],[450,450]],d:[[450,600],[300,600],[450,450]], p:[[300,300],[300,600],[450,450]], edge:"tb" },
+    { type:"Digital",   desc:"Vivid",     t:[[0,600],[150,450],[150,600]],d:[[150,600],[150,450],[300,600]], p:[[300,300],[300,600],[150,450]], edge:"tb" },
+    { type:"Installation",desc:"Abstract",t:[[0,600],[0,450],[150,450]],d:[[0,450],[0,300],[150,450]], p:[[300,300],[0,300],[150,450]], edge:"lr" }
+  ];
+  const SUGGEST = { olsen:"Painting", picasso:"Painting", lewitt:"Drawing", parr:"Drawing", kentridge:"Digital" };
+  const NS = "http://www.w3.org/2000/svg", svg = document.getElementById("cbSvg");
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const cen = pts => [pts.reduce((a, p) => a + p[0], 0) / 3, pts.reduce((a, p) => a + p[1], 0) / 3];
+  function poly(pts, fill, cls, key) { const e = document.createElementNS(NS, "polygon"); e.setAttribute("points", pts.map(p => p.join(",")).join(" ")); e.setAttribute("fill", fill); e.setAttribute("class", "tri " + cls); e.dataset.key = key; svg.appendChild(e); return e; }
+  function label(pts, txt, size, fill, ang) { const [x, y] = cen(pts), e = document.createElementNS(NS, "text"); e.setAttribute("x", x); e.setAttribute("y", y); e.setAttribute("text-anchor", "middle"); e.setAttribute("dominant-baseline", "central"); e.setAttribute("font-size", size); if (LIGHT_TEXT.has(fill)) e.setAttribute("class", "lt"); if (ang) e.setAttribute("transform", `rotate(${ang} ${x} ${y})`); e.textContent = txt; svg.appendChild(e); return e; }
+  const els = {};
+  PIECES.forEach(pc => {
+    const [tc] = [TYPES[pc.type][1]], dc = DESCS[pc.desc][1];
+    const promptFill = pc.edge === "tb" ? C.sky : C.blush;
+    els["p-" + pc.desc] = poly(pc.p, promptFill, "pr", pc.desc);
+    els["t-" + pc.type] = poly(pc.t, tc, "ty", pc.type);
+    els["d-" + pc.desc] = poly(pc.d, dc, "de", pc.desc);
+    label(pc.t, pc.type, pc.type.length > 9 ? 14 : 16, tc, pc.edge === "tb" ? 0 : -90);
+    label(pc.d, pc.desc, pc.desc.length > 8 ? 17 : 20, dc, pc.edge === "tb" ? 0 : -90);
+    els["q-" + pc.desc] = label(pc.p, "?", 30, promptFill, 0);
+  });
+
+  let work = "olsen", type = null, orient = null, desc = null, busy = false;
+  const $ = id => document.getElementById(id);
+  function wBtns() { $("cbWorks").innerHTML = ["olsen","picasso","lewitt","parr","kentridge"].map(k => `<button type="button" data-cw="${k}" aria-pressed="${k === work}">${WORKS[k].artist}</button>`).join(""); }
+  function wordBtn(name, ko, color, attr) { return `<button type="button" ${attr}="${name}" style="background:${color}" class="${LIGHT_TEXT.has(color) ? "lt" : ""}">${name}<small>${ko}</small></button>`; }
+  $("cbTypes").innerHTML = Object.keys(TYPES).map(k => wordBtn(k, TYPES[k][0], TYPES[k][1], "data-ct")).join("");
+  $("cbDescs").innerHTML = Object.keys(DESCS).map(k => wordBtn(k, DESCS[k][0], DESCS[k][1], "data-cd")).join("");
+  function paint() {
+    document.querySelectorAll("#cbWorks button").forEach(b => b.setAttribute("aria-pressed", b.dataset.cw === work));
+    document.querySelectorAll("#cbTypes button").forEach(b => { b.classList.toggle("pick", b.dataset.ct === type); b.classList.toggle("hint", b.dataset.ct === SUGGEST[work]); b.disabled = busy; });
+    document.querySelectorAll("#cbDescs button").forEach(b => { const pc = PIECES.find(p => p.desc === b.dataset.cd); b.disabled = busy || !orient || pc.edge !== orient; b.classList.toggle("pick", b.dataset.cd === desc); });
+    PIECES.forEach(pc => {
+      els["t-" + pc.type].classList.toggle("glow", pc.type === type);
+      els["d-" + pc.desc].classList.toggle("dim", !!orient && pc.edge !== orient);
+      els["d-" + pc.desc].classList.toggle("glow", pc.desc === desc);
+      els["p-" + pc.desc].classList.toggle("glow", pc.desc === desc && !busy);
+      els["q-" + pc.desc].textContent = pc.desc === desc && !busy ? "!" : "?";
+    });
+  }
+  function spell(word, done) {
+    busy = true; paint(); const ic = $("foldIc"); let i = 0;
+    const step = () => {
+      i++; ic.className = "fold-ic " + (i % 2 ? "a" : "b");
+      $("spellOut").innerHTML = `<b>${word.slice(0, i).toUpperCase()}</b>${word.slice(i).toUpperCase().replace(/./g, "·")} · ${i}번 접었다 펴기`;
+      if (i < word.length) setTimeout(step, reduce ? 0 : 340); else { busy = false; done(i); }
+    };
+    step();
+  }
+  function reset(msg) { type = null; orient = null; desc = null; $("foldIc").className = "fold-ic"; $("spellOut").textContent = "접었다 펴기를 기다리는 중"; $("cbResult").innerHTML = `<p class="fine">${msg || "작품 종류를 고르면 시작합니다."} 이 작품에는 <b>${SUGGEST[work]}</b>가 잘 맞아요.</p>`; paint(); }
+  document.addEventListener("click", e => {
+    const cw = e.target.closest("[data-cw]"), ct = e.target.closest("[data-ct]"), cd = e.target.closest("[data-cd]"), ch = e.target.closest("[data-chat]");
+    if (ch) { const dlg = document.getElementById("viewer"); if (dlg.open) dlg.close(); work = ch.dataset.chat; reset(); document.getElementById("s-chat").scrollIntoView({ block: "start" }); return; }
+    if (cw && !busy) { work = cw.dataset.cw; reset(); }
+    if (ct && !busy) {
+      type = ct.dataset.ct; desc = null; orient = null; paint();
+      spell(type, n => { orient = n % 2 ? "tb" : "lr"; paint(); $("cbResult").innerHTML = `<p class="fine">${n}번 접었다 펴서 <b>${orient === "tb" ? "위아래" : "양옆"}</b> 방향으로 열렸어요. 보이는 묘사 단어 넷 중 ${WORKS[work].title}에 어울리는 것을 고르세요.</p>`; });
+    }
+    if (cd && !busy && !cd.disabled) {
+      desc = cd.dataset.cd; paint();
+      spell(desc, () => { const d = DESCS[desc], w = WORKS[work]; paint();
+        $("cbResult").innerHTML = `<div class="for">${w.artist} · ${w.title} 앞에서 · ${type} → ${desc}</div><div class="ko">${d[3]}</div><div class="en">${d[2]}</div><button type="button" id="cbAgain">다시 돌리기</button>`;
+        $("cbAgain").onclick = () => reset("다른 단어로 다시 해 보세요."); });
+    }
+  });
+  wBtns(); reset();
 })();
 </script>
